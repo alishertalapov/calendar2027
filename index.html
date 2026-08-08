@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мектептің Жылдық Іс-шаралар Күнтізбесін Құрастырушы (Mektep Event Calendar Builder)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts for Cyrillic / Kazakh text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Noto+Serif:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Export Libraries: html2pdf & html2canvas & jspdf -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            rubik: ['"Rubik"', 'sans-serif'],
+            montserrat: ['"Montserrat"', 'sans-serif'],
+            serif: ['"Noto Serif"', 'serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom CSS Styles */
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* Font Family classes */
+    .font-style-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-style-rubik { font-family: 'Rubik', sans-serif; }
+    .font-style-montserrat { font-family: 'Montserrat', sans-serif; }
+    .font-style-serif { font-family: 'Noto Serif', serif; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Glassmorphism accents */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    /* Color Theme presets */
+    /* Blue Theme (Default) */
+    .theme-blue {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --primary-light: #eff6ff;
+      --accent-bg: #dbeafe;
+      --header-bg: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      --header-text: #ffffff;
+      --card-border: #bfdbfe;
+    }
+    /* Autumn Gold Theme */
+    .theme-gold {
+      --primary: #d97706;
+      --primary-dark: #92400e;
+      --primary-light: #fffbe3;
+      --accent-bg: #fef3c7;
+      --header-bg: linear-gradient(135deg, #78350f 0%, #d97706 100%);
+      --header-text: #ffffff;
+      --card-border: #fde68a;
+    }
+    /* Minimal Mint Theme */
+    .theme-mint {
+      --primary: #0d9488;
+      --primary-dark: #115e59;
+      --primary-light: #f0fdfa;
+      --accent-bg: #ccfbf1;
+      --header-bg: linear-gradient(135deg, #134e4a 0%, #0d9488 100%);
+      --header-text: #ffffff;
+      --card-border: #99f6e4;
+    }
+    /* Vibrant Purple Theme */
+    .theme-purple {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #f5f3ff;
+      --accent-bg: #ede9fe;
+      --header-bg: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+      --header-text: #ffffff;
+      --card-border: #ddd6fe;
+    }
+    /* Emerald Academic Theme */
+    .theme-emerald {
+      --primary: #059669;
+      --primary-dark: #065f46;
+      --primary-light: #ecfdf5;
+      --accent-bg: #d1fae5;
+      --header-bg: linear-gradient(135deg, #064e3b 0%, #059669 100%);
+      --header-text: #ffffff;
+      --card-border: #a7f3d0;
+    }
+
+    .theme-header {
+      background: var(--header-bg);
+      color: var(--header-text);
+    }
+    .theme-primary-text {
+      color: var(--primary);
+    }
+    .theme-primary-bg {
+      background-color: var(--primary);
+    }
+    .theme-accent-bg {
+      background-color: var(--accent-bg);
+    }
+
+    /* Print Specific Styling */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      #calendar-preview-area {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      .page-break {
+        page-break-after: always;
+      }
+      @page {
+        size: A4 landscape;
+        margin: 8mm;
+      }
+    }
+
+    /* A4 Poster Aspect Container */
+    .paper-a4-landscape {
+      width: 100%;
+      min-height: 210mm;
+      background: #ffffff;
+    }
+    .paper-a4-portrait {
+      width: 100%;
+      min-height: 297mm;
+      background: #ffffff;
+    }
+
+    /* Category Badges Styling */
+    .badge-academic { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-upbringing { background-color: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+    .badge-sports { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .badge-holidays { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .badge-cultural { background-color: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
+    .badge-exams { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .badge-parents { background-color: #ccfbf1; color: #115e59; border: 1px solid #99f6e4; }
+
+    /* Transitions */
+    .animated-fade {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden theme-blue font-style-jakarta bg-slate-100">
+
+  <!-- TOP APP HEADER / NAVBAR -->
+  <header class="no-print bg-slate-900 text-white border-b border-slate-800 px-4 py-2.5 flex items-center justify-between shrink-0 shadow-md">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
+        <i class="fa-solid fa-calendar-days"></i>
+      </div>
+      <div>
+        <h1 class="font-bold text-base tracking-tight leading-tight flex items-center gap-2">
+          <span>МектепКүнтізбе</span>
+          <span class="text-xs bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-full border border-blue-400/30">Жылдық Жоспар</span>
+        </h1>
+        <p class="text-xs text-slate-400 leading-none">Мектептің іс-шаралар күнтізбесін құрастырушы және жүктеуші</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions Toolbar -->
+    <div class="flex items-center space-x-2">
+      <!-- Quick Sample Data -->
+      <button onclick="resetToSampleData()" title="Үлгі мәліметтерді қайта жүктеу" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1.5">
+        <i class="fa-solid fa-rotate-left text-amber-400"></i>
+        <span class="hidden sm:inline">Үлгі деректер</span>
+      </button>
+
+      <!-- JSON Backup & Restore -->
+      <button onclick="exportJSON()" title="Күнтізбені сақтау (JSON)" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+        <i class="fa-solid fa-download text-blue-400"></i>
+        <span class="hidden md:inline">JSON Сақтау</span>
+      </button>
+      <button onclick="triggerJSONImport()" title="Күнтізбені жүктеу (JSON)" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+        <i class="fa-solid fa-upload text-emerald-400"></i>
+        <span class="hidden md:inline">JSON Жүктеу</span>
+      </button>
+      <input type="file" id="json-file-input" accept=".json" class="hidden" onchange="importJSON(event)">
+
+      <div class="h-5 w-px bg-slate-700 mx-1"></div>
+
+      <!-- Export Actions -->
+      <button onclick="exportToPDF()" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-sm">
+        <i class="fa-solid fa-file-pdf"></i>
+        <span>PDF Жүктеу</span>
+      </button>
+
+      <button onclick="exportToPNG()" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-sm">
+        <i class="fa-solid fa-file-image"></i>
+        <span>PNG Сурет</span>
+      </button>
+
+      <button onclick="window.print()" class="text-xs bg-slate-700 hover:bg-slate-600 text-white font-medium px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
+        <i class="fa-solid fa-print"></i>
+        <span class="hidden lg:inline">Басып шығару</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER (2 COLUMNS) -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- LEFT SIDEBAR: CONTROLS & EVENT BUILDER -->
+    <aside class="no-print w-full md:w-[420px] xl:w-[450px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 shadow-lg">
+      
+      <!-- Sidebar Navigation Tabs -->
+      <div class="flex border-b border-slate-200 bg-slate-50 p-1.5 gap-1 text-xs font-medium">
+        <button id="tab-btn-events" onclick="switchSidebarTab('events')" class="flex-1 py-2 px-2 rounded-lg text-slate-700 font-semibold bg-white shadow-sm border border-slate-200 flex items-center justify-center space-x-1.5 transition">
+          <i class="fa-solid fa-list-check text-blue-600"></i>
+          <span>Іс-шаралар</span>
+          <span id="events-count-badge" class="bg-blue-100 text-blue-700 text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-1">0</span>
+        </button>
+        <button id="tab-btn-design" onclick="switchSidebarTab('design')" class="flex-1 py-2 px-2 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-1.5 transition">
+          <i class="fa-solid fa-palette text-purple-600"></i>
+          <span>Дизайн мен Тема</span>
+        </button>
+        <button id="tab-btn-settings" onclick="switchSidebarTab('settings')" class="flex-1 py-2 px-2 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-1.5 transition">
+          <i class="fa-solid fa-sliders text-emerald-600"></i>
+          <span>Мектеп & Деректер</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: EVENTS MANAGER -->
+      <div id="tab-content-events" class="flex-1 overflow-y-auto p-4 space-y-4">
+        
+        <!-- EVENT FORM CARD -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3 shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+            <h2 id="form-title" class="font-bold text-sm text-slate-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-plus-circle text-blue-600"></i>
+              <span>Жаңа іс-шара қосу</span>
+            </h2>
+            <button id="cancel-edit-btn" onclick="resetEventForm()" class="hidden text-xs text-rose-600 hover:text-rose-700 font-medium">
+              <i class="fa-solid fa-xmark"></i> Бас тарту
+            </button>
+          </div>
+
+          <form id="event-form" onsubmit="handleEventFormSubmit(event)" class="space-y-3">
+            <input type="hidden" id="event-id-input" value="">
+
+            <!-- Title Input -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">
+                Іс-шара атауы <span class="text-rose-500">*</span>
+              </label>
+              <input type="text" id="event-title-input" required placeholder="Мұғалімдер күніне арналған концерт" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white">
+            </div>
+
+            <!-- Date range inputs -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  Басталған күні <span class="text-rose-500">*</span>
+                </label>
+                <input type="date" id="event-start-date" required class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  Аяқталған күні (міндетті емес)
+                </label>
+                <input type="date" id="event-end-date" class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              </div>
+            </div>
+
+            <!-- Category & Time -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  Санаты <span class="text-rose-500">*</span>
+                </label>
+                <select id="event-category-select" required class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                  <option value="academic">Оқу-ағарту</option>
+                  <option value="upbringing">Тәрбие жұмысы</option>
+                  <option value="sports">Спорт & Денсаулық</option>
+                  <option value="holidays">Мерекелер</option>
+                  <option value="cultural">Мәдени-көпшілік</option>
+                  <option value="exams">Сынақ & ТЖБ</option>
+                  <option value="parents">Ата-аналармен жұмыс</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  Уақыты
+                </label>
+                <input type="text" id="event-time-input" placeholder="10:00 немесе Күні бойы" class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              </div>
+            </div>
+
+            <!-- Location & Target Audience -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Өтілетін орны</label>
+                <input type="text" id="event-location-input" placeholder="Акт залы, Спорт залы..." class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Қатысушылар</label>
+                <input type="text" id="event-audience-input" placeholder="1-11 сыныптар, ұстаздар..." class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              </div>
+            </div>
+
+            <!-- Responsible & Description -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Жауапты тұлға / Сипаттама</label>
+              <textarea id="event-description-input" rows="2" placeholder="Жауапты: ТЖО, Сынып жетекшілері..." class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white resize-none"></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submit-event-btn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg transition shadow-sm flex items-center justify-center space-x-1">
+              <i class="fa-solid fa-plus"></i>
+              <span>Іс-шараны қосу</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- EVENTS FILTER & LIST SECTION -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Енгізілген іс-шаралар</h3>
+            <span class="text-[11px] text-slate-500" id="events-filtered-counter">Барлығы: 0</span>
+          </div>
+
+          <!-- Filters Row -->
+          <div class="grid grid-cols-2 gap-2">
+            <!-- Search field -->
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+              <input type="text" id="search-events-input" oninput="renderEventsList()" placeholder="Іздеу..." class="w-full text-xs pl-7 pr-2 py-1.5 border border-slate-200 rounded-lg outline-none bg-white">
+            </div>
+
+            <!-- Month filter -->
+            <select id="filter-month-select" onchange="renderEventsList()" class="text-xs px-2 py-1.5 border border-slate-200 rounded-lg outline-none bg-white">
+              <option value="all">Барлық айлар</option>
+              <option value="09">Қыркүйек</option>
+              <option value="10">Қазан</option>
+              <option value="11">Қараша</option>
+              <option value="12">Желтоқсан</option>
+              <option value="01">Қаңтар</option>
+              <option value="02">Ақпан</option>
+              <option value="03">Наурыз</option>
+              <option value="04">Сәуір</option>
+              <option value="05">Мамыр</option>
+              <option value="06">Маусым</option>
+            </select>
+          </div>
+
+          <!-- Category filter pills -->
+          <div class="flex flex-wrap gap-1 pt-1" id="category-filter-pills">
+            <!-- Dynamically populated category pills -->
+          </div>
+
+          <!-- Event Item Cards List -->
+          <div id="events-list-container" class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+            <!-- Dynamic events render here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: DESIGN & THEME -->
+      <div id="tab-content-design" class="hidden flex-1 overflow-y-auto p-4 space-y-5">
+        
+        <!-- Theme Selector -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+            <i class="fa-solid fa-swatchbook text-blue-600 mr-1"></i> Түс тақырыбы (Theme)
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="setTheme('blue')" class="theme-option p-2.5 border-2 rounded-xl text-left transition flex items-center space-x-2.5 bg-blue-50/50 border-blue-500">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-r from-blue-700 to-blue-500 shadow-sm shrink-0"></div>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Классикалық көк</div>
+                <div class="text-[10px] text-slate-500">Дәстүрлі мектеп стилі</div>
+              </div>
+            </button>
+
+            <button onclick="setTheme('gold')" class="theme-option p-2.5 border border-slate-200 rounded-xl text-left transition flex items-center space-x-2.5 hover:border-amber-400 bg-amber-50/30">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-r from-amber-700 to-amber-500 shadow-sm shrink-0"></div>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Алтын күз</div>
+                <div class="text-[10px] text-slate-500">Жылы, салтанатты</div>
+              </div>
+            </button>
+
+            <button onclick="setTheme('emerald')" class="theme-option p-2.5 border border-slate-200 rounded-xl text-left transition flex items-center space-x-2.5 hover:border-emerald-400 bg-emerald-50/30">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-r from-emerald-800 to-emerald-500 shadow-sm shrink-0"></div>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Изумруд академиялық</div>
+                <div class="text-[10px] text-slate-500">Тұрақты, ресми</div>
+              </div>
+            </button>
+
+            <button onclick="setTheme('purple')" class="theme-option p-2.5 border border-slate-200 rounded-xl text-left transition flex items-center space-x-2.5 hover:border-purple-400 bg-purple-50/30">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-r from-purple-800 to-purple-500 shadow-sm shrink-0"></div>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Жарқын күлгін</div>
+                <div class="text-[10px] text-slate-500">Заманауи, шығармашылық</div>
+              </div>
+            </button>
+
+            <button onclick="setTheme('mint')" class="theme-option p-2.5 border border-slate-200 rounded-xl text-left transition flex items-center space-x-2.5 hover:border-teal-400 bg-teal-50/30 col-span-2">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-r from-teal-800 to-teal-500 shadow-sm shrink-0"></div>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Минимал жалбыз</div>
+                <div class="text-[10px] text-slate-500">Сергітетін, жеңіл дизайн</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Layout Switcher -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+            <i class="fa-solid fa-border-all text-indigo-600 mr-1"></i> Күнтізбе Көрінісі (Layout)
+          </label>
+          <div class="grid grid-cols-1 gap-2">
+            <button onclick="setLayout('grid12')" id="layout-opt-grid12" class="p-2.5 border-2 border-blue-500 rounded-xl text-left bg-blue-50/30 flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <i class="fa-solid fa-calendar-grid text-blue-600 text-base"></i>
+                <div>
+                  <div class="text-xs font-bold text-slate-800">12 Айлық Сетка (Grid)</div>
+                  <div class="text-[10px] text-slate-500">Жыл бойындағы барлық 12 ай бір парақта</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-circle-check text-blue-600"></i>
+            </button>
+
+            <button onclick="setLayout('quarters')" id="layout-opt-quarters" class="p-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-left flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <i class="fa-solid fa-chart-pie text-emerald-600 text-base"></i>
+                <div>
+                  <div class="text-xs font-bold text-slate-800">4 Тоқсан бойынша (Quarter View)</div>
+                  <div class="text-[10px] text-slate-500">Оқу тоқсандары бойынша топтастырылған</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-circle text-slate-200"></i>
+            </button>
+
+            <button onclick="setLayout('timeline')" id="layout-opt-timeline" class="p-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-left flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <i class="fa-solid fa-timeline text-purple-600 text-base"></i>
+                <div>
+                  <div class="text-xs font-bold text-slate-800">Хронологиялық тізім (Timeline)</div>
+                  <div class="text-[10px] text-slate-500">Айлар бойынша реттелген тізбек</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-circle text-slate-200"></i>
+            </button>
+
+            <button onclick="setLayout('categories')" id="layout-opt-categories" class="p-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-left flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <i class="fa-solid fa-layer-group text-amber-600 text-base"></i>
+                <div>
+                  <div class="text-xs font-bold text-slate-800">Бағыттар бойынша (Category Matrix)</div>
+                  <div class="text-[10px] text-slate-500">Оқу, тәрбие, спорт, мереке категориялары</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-circle text-slate-200"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Typography / Font Switcher -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+            <i class="fa-solid fa-font text-amber-600 mr-1"></i> Қаріп стилі (Font)
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="setFontStyle('jakarta')" class="p-2 border rounded-lg text-xs font-style-jakarta text-left hover:border-blue-500">
+              Plus Jakarta Sans
+            </button>
+            <button onclick="setFontStyle('rubik')" class="p-2 border rounded-lg text-xs font-style-rubik text-left hover:border-blue-500">
+              Rubik (Ашық)
+            </button>
+            <button onclick="setFontStyle('montserrat')" class="p-2 border rounded-lg text-xs font-style-montserrat text-left hover:border-blue-500">
+              Montserrat (Қалың)
+            </button>
+            <button onclick="setFontStyle('serif')" class="p-2 border rounded-lg text-xs font-style-serif text-left hover:border-blue-500">
+              Noto Serif (Классика)
+            </button>
+          </div>
+        </div>
+
+        <!-- Paper Orientation -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+            <i class="fa-solid fa-file-lines text-rose-600 mr-1"></i> Парақ бағыты (Paper Format)
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="setPaperFormat('a4-landscape')" id="btn-paper-landscape" class="p-2.5 border-2 border-blue-500 bg-blue-50/40 rounded-lg text-xs font-semibold text-slate-800 text-center flex flex-col items-center justify-center space-y-1">
+              <i class="fa-solid fa-receipt text-blue-600 rotate-90 text-lg"></i>
+              <span>Альбомдық (Landscape A4)</span>
+            </button>
+            <button onclick="setPaperFormat('a4-portrait')" id="btn-paper-portrait" class="p-2.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 text-center flex flex-col items-center justify-center space-y-1 hover:border-slate-300">
+              <i class="fa-solid fa-receipt text-slate-500 text-lg"></i>
+              <span>Кітаптық (Portrait A4)</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 3: SETTINGS & SCHOOL INFO -->
+      <div id="tab-content-settings" class="hidden flex-1 overflow-y-auto p-4 space-y-4">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
+          <h3 class="text-xs font-bold text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-school text-blue-600"></i>
+            <span>Мектеп және Күнтізбе Тіптері</span>
+          </h3>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Мектеп атауы</label>
+            <input type="text" id="setting-school-name" oninput="updateCalendarSettings()" value="№15 Мектеп-лицейі" class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none bg-white">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Күнтізбе негізгі тақырыбы</label>
+            <input type="text" id="setting-calendar-title" oninput="updateCalendarSettings()" value="2026-2027 Оқу жылының жылдық іс-шаралар күнтізбесі" class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none bg-white">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Қосымша тақырыпша (Subtitle)</label>
+            <input type="text" id="setting-subtitle" oninput="updateCalendarSettings()" value="Оқу-тәрбие процесінің негізгі жылдық жоспары" class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none bg-white">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Оқу жылы</label>
+              <input type="text" id="setting-academic-year" oninput="updateCalendarSettings()" value="2026-2027" class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none bg-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Мектеп директоры</label>
+              <input type="text" id="setting-director-name" oninput="updateCalendarSettings()" value="А.Б. Серіков" class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none bg-white">
+            </div>
+          </div>
+
+          <!-- Logo Upload Placeholder -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Мектеп Логотипі / Елтаңбасы</label>
+            <div class="flex items-center space-x-2">
+              <button onclick="triggerLogoUpload()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
+                <i class="fa-solid fa-image text-slate-600"></i>
+                <span>Сурет таңдау</span>
+              </button>
+              <button onclick="removeLogo()" class="text-xs text-rose-600 hover:underline">Өшіру</button>
+              <input type="file" id="logo-file-input" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+            </div>
+          </div>
+
+          <!-- Approval Signature Toggle -->
+          <div class="pt-2 border-t border-slate-200 flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-700">"Бекітемін" ресми қолтаңба блогы</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="setting-show-approval" onchange="updateCalendarSettings()" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        </div>
+
+        <!-- PRESET TEMPLATES -->
+        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3.5 space-y-2">
+          <h4 class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i>
+            <span>Дайын Іс-шара Үлгілері</span>
+          </h4>
+          <p class="text-[11px] text-indigo-700">Стандартты мектеп мерекелерін авто-қосу:</p>
+
+          <div class="grid grid-cols-1 gap-1.5 pt-1">
+            <button onclick="loadNationalHolidaysBundle()" class="w-full text-xs bg-white hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-medium py-1.5 px-2.5 rounded-lg text-left transition flex items-center justify-between">
+              <span><i class="fa-solid fa-flag text-amber-500 mr-1.5"></i> ҚР Ұлттық & Мемлекеттік мерекелер</span>
+              <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+            <button onclick="loadExamScheduleBundle()" class="w-full text-xs bg-white hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-medium py-1.5 px-2.5 rounded-lg text-left transition flex items-center justify-between">
+              <span><i class="fa-solid fa-pen-ruler text-rose-500 mr-1.5"></i> Тоқсандық ТЖБ/БЖБ Кестелері</span>
+              <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- DANGEROUS DATA CLEAR BUTTON -->
+        <div class="pt-4">
+          <button onclick="confirmClearData()" class="w-full text-xs bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center space-x-1">
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Барлық деректерді өшіру (Clear All)</span>
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- RIGHT SIDE: LIVE CALENDAR PREVIEW CANVAS -->
+    <main class="flex-1 bg-slate-200/80 p-3 md:p-6 overflow-y-auto flex flex-col items-center">
+      
+      <!-- Canvas Controls Bar above Preview -->
+      <div class="no-print w-full max-w-5xl mb-3 flex items-center justify-between bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200/80 text-xs">
+        <div class="flex items-center space-x-2 text-slate-600 font-medium">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-bold text-slate-800">Тікелей Көрініс (Live Preview Canvas)</span>
+          </span>
+          <span class="text-slate-300">|</span>
+          <span id="canvas-active-layout-label" class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono text-[11px]">Grid View</span>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <button onclick="window.print()" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-eye"></i>
+            <span>Алдын ала қарау</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN PRINTABLE PAPER CANVAS CONTAINER -->
+      <div id="calendar-preview-area" class="paper-a4-landscape max-w-5xl bg-white shadow-2xl rounded-2xl p-6 md:p-8 transition-all duration-300 border border-slate-200 relative">
+        
+        <!-- CANVAS HEADER -->
+        <div class="border-b-2 border-slate-900/10 pb-5 mb-6">
+          
+          <!-- TOP HEADER BAR: Official Approval Block & School Info -->
+          <div class="flex flex-col md:flex-row items-start justify-between gap-4 mb-4">
+            
+            <!-- Left: School Badge & Names -->
+            <div class="flex items-center space-x-4">
+              <div id="school-logo-container" class="w-16 h-16 rounded-2xl bg-slate-900 theme-header flex items-center justify-center text-white text-2xl font-black shadow-md shrink-0 border border-white/20">
+                <i class="fa-solid fa-graduation-cap" id="default-logo-icon"></i>
+                <img id="uploaded-logo-img" class="w-full h-full object-cover rounded-2xl hidden" alt="Logo">
+              </div>
+
+              <div>
+                <h3 id="canvas-school-name" class="text-sm font-bold tracking-wide uppercase text-slate-600">
+                  №15 Мектеп-лицейі
+                </h3>
+                <h1 id="canvas-calendar-title" class="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight leading-snug mt-0.5">
+                  2026-2027 Оқу жылының жылдық іс-шаралар күнтізбесі
+                </h1>
+                <p id="canvas-subtitle" class="text-xs text-slate-500 font-medium mt-0.5">
+                  Оқу-тәрбие процесінің негізгі жылдық жоспары
+                </p>
+              </div>
+            </div>
+
+            <!-- Right: Official Approval "БЕКІТЕМІН" Stamp block -->
+            <div id="approval-stamp-block" class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs space-y-1 min-w-[200px] shrink-0 text-slate-700">
+              <div class="font-bold text-slate-900 uppercase text-[10px] tracking-wider text-slate-500">БЕКІТЕМІН:</div>
+              <div class="font-semibold" id="canvas-approver-title">Мектеп директоры:</div>
+              <div class="pt-3 border-b border-slate-400 w-full flex justify-between items-end">
+                <span id="canvas-director-name" class="font-bold text-slate-900">А.Б. Серіков</span>
+                <span class="text-[9px] text-slate-400 font-serif">қолы/мөр</span>
+              </div>
+              <div class="text-[10px] text-slate-500 pt-1">«___» ____________ 2026 ж.</div>
+            </div>
+          </div>
+
+          <!-- CATEGORY LEGEND BAR -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 text-xs">
+            <div class="flex flex-wrap items-center gap-1.5" id="legend-pills-bar">
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Санаттар:</span>
+              <span class="badge-academic px-2 py-0.5 rounded-md font-semibold text-[11px] flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span> Оқу-ағарту
+              </span>
+              <span class="badge-upbringing px-2 py-0.5 rounded-md font-semibold text-[11px] flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span> Тәрбие
+              </span>
+              <span class="badge-sports px-2 py-0.5 rounded-md font-semibold text-[11px] flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Спорт
+              </span>
+              <span class="badge-holidays px-2 py-0.5 rounded-md font-semibold text-[11px] flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> Мерекелер
+              </span>
+              <span class="badge-cultural px-2 py-0.5 rounded-md font-semibold text-[11px] flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> Мәдени
+              </span>
+              <span class="badge-exams px-2 py-0.5 rounded-md font-semibold text-[11px] flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Сынақ/ТЖБ
+              </span>
+            </div>
+
+            <div class="text-[11px] text-slate-500 font-medium">
+              Оқу жылы: <span id="canvas-academic-year-badge" class="font-bold text-slate-800">2026-2027</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- DYNAMIC MAIN CANVAS CONTENT BODY -->
+        <div id="main-calendar-body" class="animated-fade min-h-[450px]">
+          <!-- Rendered dynamically based on current layout view -->
+        </div>
+
+        <!-- CANVAS FOOTER SIGNATURES -->
+        <div class="mt-8 pt-4 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+          <div class="flex items-center space-x-6">
+            <div>
+              <span>Құрастырған (Оқу ісі меңгерушісі): </span>
+              <span class="border-b border-slate-400 font-semibold inline-block w-36 text-center text-slate-800">________________</span>
+            </div>
+            <div>
+              <span>Тәрбие ісі меңгерушісі: </span>
+              <span class="border-b border-slate-400 font-semibold inline-block w-36 text-center text-slate-800">________________</span>
+            </div>
+          </div>
+          <div class="text-slate-400 text-[10px]">
+            МектепКүнтізбе жүйесімен жасалған • <span id="canvas-footer-date">2026</span>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- EVENT DETAIL / EDIT MODAL -->
+  <div id="event-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4 border border-slate-100 animated-fade">
+      <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center space-x-2">
+          <span id="modal-category-badge" class="badge-academic px-2.5 py-1 rounded-md text-xs font-bold">
+            Санат
+          </span>
+          <span id="modal-date-badge" class="text-xs text-slate-500 font-medium">
+            01.09.2026
+          </span>
+        </div>
+        <button onclick="closeEventModal()" class="text-slate-400 hover:text-slate-600 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div>
+        <h3 id="modal-title" class="font-extrabold text-base text-slate-900 leading-snug">
+          Іс-шара тақырыбы
+        </h3>
+        <p id="modal-description" class="text-xs text-slate-600 mt-2 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+          Сипаттама
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+        <div class="bg-slate-50 p-2 rounded-lg">
+          <span class="text-slate-400 font-medium block text-[10px]">Уақыты & Орны</span>
+          <span id="modal-location" class="font-bold text-slate-800">Акт залы</span>
+        </div>
+        <div class="bg-slate-50 p-2 rounded-lg">
+          <span class="text-slate-400 font-medium block text-[10px]">Қатысушылар</span>
+          <span id="modal-audience" class="font-bold text-slate-800">1-11 сыныптар</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+        <button id="modal-edit-btn" onclick="editModalEvent()" class="text-xs bg-blue-50 text-blue-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-100 transition">
+          <i class="fa-solid fa-pen-to-square mr-1"></i> Өңдеу
+        </button>
+        <button id="modal-delete-btn" onclick="deleteModalEvent()" class="text-xs bg-rose-50 text-rose-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-rose-100 transition">
+          <i class="fa-solid fa-trash mr-1"></i> Өшіру
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- APPLICATION JAVASCRIPT CODE -->
+  <script>
+    // ==========================================
+    // 1. DATA STRUCTURES & INITIAL STATE
+    // ==========================================
+
+    const CATEGORY_MAP = {
+      academic: { name: 'Оқу-ағарту', badgeClass: 'badge-academic', colorHex: '#2563eb' },
+      upbringing: { name: 'Тәрбие жұмысы', badgeClass: 'badge-upbringing', colorHex: '#7c3aed' },
+      sports: { name: 'Спорт & Денсаулық', badgeClass: 'badge-sports', colorHex: '#059669' },
+      holidays: { name: 'Мерекелер', badgeClass: 'badge-holidays', colorHex: '#d97706' },
+      cultural: { name: 'Мәдени-көпшілік', badgeClass: 'badge-cultural', colorHex: '#e11d48' },
+      exams: { name: 'Сынақ & ТЖБ', badgeClass: 'badge-exams', colorHex: '#dc2626' },
+      parents: { name: 'Ата-аналармен жұмыс', badgeClass: 'badge-parents', colorHex: '#0d9488' }
+    };
+
+    const MONTHS_LIST = [
+      { code: '09', name: 'Қыркүйек', year: 2026, quarter: 1 },
+      { code: '10', name: 'Қазан', year: 2026, quarter: 1 },
+      { code: '11', name: 'Қараша', year: 2026, quarter: 1 },
+      { code: '12', name: 'Желтоқсан', year: 2026, quarter: 2 },
+      { code: '01', name: 'Қаңтар', year: 2027, quarter: 3 },
+      { code: '02', name: 'Ақпан', year: 2027, quarter: 3 },
+      { code: '03', name: 'Наурыз', year: 2027, quarter: 3 },
+      { code: '04', name: 'Сәуір', year: 2027, quarter: 4 },
+      { code: '05', name: 'Мамыр', year: 2027, quarter: 4 },
+      { code: '06', name: 'Маусым', year: 2027, quarter: 4 },
+      { code: '07', name: 'Шілде', year: 2027, quarter: 4 },
+      { code: '08', name: 'Тамыз', year: 2027, quarter: 4 }
+    ];
+
+    // Default Sample Events
+    const SAMPLE_EVENTS = [
+      {
+        id: 'evt-1',
+        title: '1 қыркүйек – Білім күні салтанатты жиыны',
+        startDate: '2026-09-01',
+        endDate: '',
+        time: '09:00',
+        category: 'holidays',
+        location: 'Мектеп алаңы',
+        targetAudience: '1-11 сыныптар, ата-аналар',
+        description: 'Жаңа оқу жылының ашылу салтанаты және Алғашқы қоңырау салтанатты сабы.'
+      },
+      {
+        id: 'evt-2',
+        title: 'Тілдер апталығы: «Тіл – халықтың жаны»',
+        startDate: '2026-09-15',
+        endDate: '2026-09-22',
+        time: 'Апта бойы',
+        category: 'cultural',
+        location: 'Акт залы, кітапхана',
+        targetAudience: '5-11 сыныптар',
+        description: 'Қазақстан халықтарының тілдері күніне арналған сайыстар, мәнерлеп оқу және дөңгелек үстел.'
+      },
+      {
+        id: 'evt-3',
+        title: 'Мұғалімдер күніне арналған мерекелік концерт',
+        startDate: '2026-10-02',
+        endDate: '',
+        time: '14:00',
+        category: 'holidays',
+        location: 'Акт залы',
+        targetAudience: 'Педагогтар құрамы',
+        description: 'Ұстаздар қауымын ұлықтау, марапаттау және оқушылардың мерекелік концерті.'
+      },
+      {
+        id: 'evt-4',
+        title: 'Алтын күз: «Табиғат сыйы» көрмесі мен сайысы',
+        startDate: '2026-10-16',
+        endDate: '',
+        time: '11:00',
+        category: 'upbringing',
+        location: 'Мектеп фойесі',
+        targetAudience: '1-6 сыныптар',
+        description: 'Күзгі өнімдерден бұйымдар жасау көрмесі және сыныпаралық сән үлгісі.'
+      },
+      {
+        id: 'evt-5',
+        title: 'I тоқсандық жиынтық бағалау (ТЖБ/БЖБ)',
+        startDate: '2026-10-22',
+        endDate: '2026-10-29',
+        time: 'Сабақ уақытында',
+        category: 'exams',
+        location: 'Оқу кабинеттері',
+        targetAudience: '2-11 сыныптар',
+        description: 'Бірінші оқу тоқсанының жиынтық бағалау бақылау жұмыстары.'
+      },
+      {
+        id: 'evt-6',
+        title: 'Тәуелсіздік күні – «Мәңгілік Ел» патриоттық апталығы',
+        startDate: '2026-12-14',
+        endDate: '2026-12-16',
+        time: '10:00',
+        category: 'cultural',
+        location: 'Акт залы',
+        targetAudience: '1-11 сыныптар',
+        description: 'Қазақстан Республикасының Тәуелсіздік күніне арналған салтанатты жиын.'
+      },
+      {
+        id: 'evt-7',
+        title: 'Жаңа жылдық шырша мерекесі',
+        startDate: '2026-12-28',
+        endDate: '2026-12-29',
+        time: '11:00',
+        category: 'holidays',
+        location: 'Акт залы',
+        targetAudience: '1-4 сыныптар',
+        description: 'Бастауыш сынып оқушыларына арналған ертегілік жаңа жылдық қойылым.'
+      },
+      {
+        id: 'evt-8',
+        title: 'Ұлттық мектеп спартакиадасы: Волейбол мен тоғызқұмалақ',
+        startDate: '2027-02-12',
+        endDate: '2027-02-14',
+        time: '15:00',
+        category: 'sports',
+        location: 'Спорт залы',
+        targetAudience: '7-11 сынып оқушылары',
+        description: 'Сыныптар арасындағы спартакиадалық турнир.'
+      },
+      {
+        id: 'evt-9',
+        title: 'Наурыз мейрамы: «Ұлыстың ұлы күні» этно-фестивалі',
+        startDate: '2027-03-19',
+        endDate: '',
+        time: '10:00',
+        category: 'cultural',
+        location: 'Мектеп ауласы',
+        targetAudience: 'Барлық оқушылар мен ата-аналар',
+        description: 'Ұлттық ойындар, киіз үй тігу, ұлттық тағамдар көрмесі мен концерт.'
+      },
+      {
+        id: 'evt-10',
+        title: 'Ғылыми жобалар жарысы «Кіші ғылым академиясы»',
+        startDate: '2027-04-15',
+        endDate: '',
+        time: '10:00',
+        category: 'academic',
+        location: 'Мәжіліс залы',
+        targetAudience: '5-11 сынып оқушылары',
+        description: 'Оқушылардың зерттеу жұмыстары мен ғылыми жобаларын қорғау.'
+      },
+      {
+        id: 'evt-11',
+        title: 'Соңғы қоңырау салтанаты және Түлектер кеші',
+        startDate: '2027-05-25',
+        endDate: '',
+        time: '09:00',
+        category: 'holidays',
+        location: 'Мектеп алаңы',
+        targetAudience: 'Түлектер, ата-аналар, мұғалімдер',
+        description: 'Оқу жылының аяқталуына арналған соңғы қоңырау соғу салтанаты.'
+      }
+    ];
+
+    // App State
+    let appState = {
+      events: [],
+      theme: 'blue',
+      layout: 'grid12',
+      font: 'jakarta',
+      paperFormat: 'a4-landscape',
+      activeCategoryFilter: 'all',
+      settings: {
+        schoolName: '№15 Мектеп-лицейі',
+        calendarTitle: '2026-2027 Оқу жылының жылдық іс-шаралар күнтізбесі',
+        subtitle: 'Оқу-тәрбие процесінің негізгі жылдық жоспары',
+        academicYear: '2026-2027',
+        directorName: 'А.Б. Серіков',
+        approverTitle: 'Мектеп директоры:',
+        showApproval: true,
+        logoUrl: null
+      }
+    };
+
+    let selectedModalEventId = null;
+
+    // ==========================================
+    // 2. INITIALIZATION & LOCALSTORAGE
+    // ==========================================
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStateFromLocalStorage();
+      renderCategoryFilterPills();
+      renderEventsList();
+      applyStateToUI();
+      renderCalendarCanvas();
+    });
+
+    function loadStateFromLocalStorage() {
+      const saved = localStorage.getItem('mektep_calendar_data');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          appState = { ...appState, ...parsed };
+        } catch (e) {
+          console.error('Failed to parse saved state:', e);
+          appState.events = [...SAMPLE_EVENTS];
+        }
+      } else {
+        appState.events = [...SAMPLE_EVENTS];
+      }
+    }
+
+    function saveStateToLocalStorage() {
+      localStorage.setItem('mektep_calendar_data', JSON.stringify(appState));
+    }
+
+    function applyStateToUI() {
+      // Theme
+      setTheme(appState.theme, false);
+      // Font
+      setFontStyle(appState.font, false);
+      // Layout
+      setLayout(appState.layout, false);
+      // Paper format
+      setPaperFormat(appState.paperFormat, false);
+
+      // Settings Inputs
+      document.getElementById('setting-school-name').value = appState.settings.schoolName;
+      document.getElementById('setting-calendar-title').value = appState.settings.calendarTitle;
+      document.getElementById('setting-subtitle').value = appState.settings.subtitle;
+      document.getElementById('setting-academic-year').value = appState.settings.academicYear;
+      document.getElementById('setting-director-name').value = appState.settings.directorName;
+      document.getElementById('setting-show-approval').checked = appState.settings.showApproval;
+
+      updateLogoPreview();
+    }
+
+    // ==========================================
+    // 3. EVENT BUILDER & FORM MANAGEMENT
+    // ==========================================
+
+    function handleEventFormSubmit(e) {
+      e.preventDefault();
+      
+      const idInput = document.getElementById('event-id-input').value;
+      const title = document.getElementById('event-title-input').value.trim();
+      const startDate = document.getElementById('event-start-date').value;
+      const endDate = document.getElementById('event-end-date').value;
+      const category = document.getElementById('event-category-select').value;
+      const time = document.getElementById('event-time-input').value.trim();
+      const location = document.getElementById('event-location-input').value.trim();
+      const audience = document.getElementById('event-audience-input').value.trim();
+      const description = document.getElementById('event-description-input').value.trim();
+
+      if (!title || !startDate) {
+        showToast('Өтініш, барлық міндетті өрістерді толтырыңыз!', 'error');
+        return;
+      }
+
+      if (idInput) {
+        // Edit existing
+        const index = appState.events.findIndex(evt => evt.id === idInput);
+        if (index !== -1) {
+          appState.events[index] = {
+            id: idInput,
+            title,
+            startDate,
+            endDate,
+            category,
+            time,
+            location,
+            targetAudience: audience,
+            description
+          };
+          showToast('Іс-шара сәтті жаңартылды!', 'success');
+        }
+      } else {
+        // Create new
+        const newEvt = {
+          id: 'evt-' + Date.now(),
+          title,
+          startDate,
+          endDate,
+          category,
+          time,
+          location,
+          targetAudience: audience,
+          description
+        };
+        appState.events.push(newEvt);
+        showToast('Жаңа іс-шара сәтті қосылды!', 'success');
+      }
+
+      saveStateToLocalStorage();
+      resetEventForm();
+      renderEventsList();
+      renderCalendarCanvas();
+    }
+
+    function resetEventForm() {
+      document.getElementById('event-form').reset();
+      document.getElementById('event-id-input').value = '';
+      document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-plus-circle text-blue-600"></i><span>Жаңа іс-шара қосу</span>`;
+      document.getElementById('submit-event-btn').innerHTML = `<i class="fa-solid fa-plus"></i><span>Іс-шараны қосу</span>`;
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+    }
+
+    function editEvent(id) {
+      const evt = appState.events.find(item => item.id === id);
+      if (!evt) return;
+
+      document.getElementById('event-id-input').value = evt.id;
+      document.getElementById('event-title-input').value = evt.title;
+      document.getElementById('event-start-date').value = evt.startDate;
+      document.getElementById('event-end-date').value = evt.endDate || '';
+      document.getElementById('event-category-select').value = evt.category;
+      document.getElementById('event-time-input').value = evt.time || '';
+      document.getElementById('event-location-input').value = evt.location || '';
+      document.getElementById('event-audience-input').value = evt.targetAudience || '';
+      document.getElementById('event-description-input').value = evt.description || '';
+
+      document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-600"></i><span>Іс-шараны өңдеу</span>`;
+      document.getElementById('submit-event-btn').innerHTML = `<i class="fa-solid fa-check"></i><span>Өзгерісті сақтау</span>`;
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+
+      switchSidebarTab('events');
+      document.getElementById('tab-content-events').scrollTop = 0;
+    }
+
+    function deleteEvent(id) {
+      if (confirm('Осы іс-шараны өшіруді растайсыз ба?')) {
+        appState.events = appState.events.filter(evt => evt.id !== id);
+        saveStateToLocalStorage();
+        renderEventsList();
+        renderCalendarCanvas();
+        showToast('Іс-шара өшірілді', 'info');
+      }
+    }
+
+    // Category Pills Filter in Sidebar
+    function renderCategoryFilterPills() {
+      const container = document.getElementById('category-filter-pills');
+      let html = `<button onclick="filterByCategory('all')" class="text-[10px] px-2 py-0.5 rounded-full font-semibold transition ${appState.activeCategoryFilter === 'all' ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}">Барлығы</button>`;
+
+      Object.keys(CATEGORY_MAP).forEach(catKey => {
+        const cat = CATEGORY_MAP[catKey];
+        const isActive = appState.activeCategoryFilter === catKey;
+        html += `<button onclick="filterByCategory('${catKey}')" class="text-[10px] px-2 py-0.5 rounded-full font-semibold transition ${isActive ? 'bg-slate-900 text-white' : cat.badgeClass}">${cat.name}</button>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function filterByCategory(catKey) {
+      appState.activeCategoryFilter = catKey;
+      renderCategoryFilterPills();
+      renderEventsList();
+    }
+
+    function renderEventsList() {
+      const searchQuery = document.getElementById('search-events-input').value.toLowerCase();
+      const monthFilter = document.getElementById('filter-month-select').value;
+      const container = document.getElementById('events-list-container');
+
+      let filtered = appState.events.filter(evt => {
+        // Search
+        const matchesSearch = evt.title.toLowerCase().includes(searchQuery) || 
+                              (evt.description && evt.description.toLowerCase().includes(searchQuery)) ||
+                              (evt.location && evt.location.toLowerCase().includes(searchQuery));
+        // Category
+        const matchesCategory = appState.activeCategoryFilter === 'all' || evt.category === appState.activeCategoryFilter;
+
+        // Month
+        let matchesMonth = true;
+        if (monthFilter !== 'all') {
+          const monthCode = evt.startDate.split('-')[1];
+          matchesMonth = (monthCode === monthFilter);
+        }
+
+        return matchesSearch && matchesCategory && matchesMonth;
+      });
+
+      // Sort by start date
+      filtered.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+      document.getElementById('events-count-badge').innerText = appState.events.length;
+      document.getElementById('events-filtered-counter').innerText = `Көрсетілген: ${filtered.length}`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-slate-400 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
+            <i class="fa-solid fa-calendar-xmark text-2xl mb-1"></i>
+            <p class="text-xs">Ешқандай іс-шара табылмады</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(evt => {
+        const catInfo = CATEGORY_MAP[evt.category] || CATEGORY_MAP.academic;
+        const dateStr = formatDateKazakh(evt.startDate, evt.endDate);
+
+        html += `
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-400 transition flex items-start justify-between space-x-2 group">
+            <div class="flex-1 space-y-1 cursor-pointer" onclick="openEventModal('${evt.id}')">
+              <div class="flex items-center space-x-1.5 flex-wrap gap-y-1">
+                <span class="${catInfo.badgeClass} text-[10px] px-2 py-0.5 rounded-md font-bold">
+                  ${catInfo.name}
+                </span>
+                <span class="text-[10px] font-semibold text-slate-500">
+                  <i class="fa-regular fa-calendar text-blue-500 mr-1"></i>${dateStr}
+                </span>
+              </div>
+
+              <h4 class="text-xs font-bold text-slate-800 leading-snug group-hover:text-blue-600 transition">
+                ${evt.title}
+              </h4>
+
+              ${evt.location || evt.targetAudience ? `
+                <div class="text-[10px] text-slate-500 flex items-center space-x-2">
+                  ${evt.location ? `<span><i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>${evt.location}</span>` : ''}
+                  ${evt.targetAudience ? `<span><i class="fa-solid fa-users mr-1 text-slate-400"></i>${evt.targetAudience}</span>` : ''}
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="flex items-center space-x-1 shrink-0 opacity-80 group-hover:opacity-100 transition">
+              <button onclick="editEvent('${evt.id}')" title="Өңдеу" class="w-6 h-6 rounded-md bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button onclick="deleteEvent('${evt.id}')" title="Өшіру" class="w-6 h-6 rounded-md bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // ==========================================
+    // 4. DESIGN & THEME SWITCHING
+    // ==========================================
+
+    function setTheme(themeName, shouldSave = true) {
+      appState.theme = themeName;
+      document.body.className = document.body.className.replace(/theme-\w+/g, '');
+      document.body.classList.add(`theme-${themeName}`);
+
+      if (shouldSave) saveStateToLocalStorage();
+      renderCalendarCanvas();
+    }
+
+    function setFontStyle(fontName, shouldSave = true) {
+      appState.font = fontName;
+      document.body.className = document.body.className.replace(/font-style-\w+/g, '');
+      document.body.classList.add(`font-style-${fontName}`);
+
+      if (shouldSave) saveStateToLocalStorage();
+    }
+
+    function setLayout(layoutMode, shouldSave = true) {
+      appState.layout = layoutMode;
+
+      // Update active styling in UI options
+      ['grid12', 'quarters', 'timeline', 'categories'].forEach(m => {
+        const btn = document.getElementById(`layout-opt-${m}`);
+        if (btn) {
+          if (m === layoutMode) {
+            btn.className = "p-2.5 border-2 border-blue-500 rounded-xl text-left bg-blue-50/30 flex items-center justify-between";
+          } else {
+            btn.className = "p-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-left flex items-center justify-between";
+          }
+        }
+      });
+
+      const labelMap = {
+        grid12: '12 Айлық Сетка (Grid)',
+        quarters: '4 Тоқсан бойынша',
+        timeline: 'Хронологиялық тізім',
+        categories: 'Бағыттар бойынша'
+      };
+      document.getElementById('canvas-active-layout-label').innerText = labelMap[layoutMode] || layoutMode;
+
+      if (shouldSave) saveStateToLocalStorage();
+      renderCalendarCanvas();
+    }
+
+    function setPaperFormat(format, shouldSave = true) {
+      appState.paperFormat = format;
+      const canvas = document.getElementById('calendar-preview-area');
+      const btnLand = document.getElementById('btn-paper-landscape');
+      const btnPort = document.getElementById('btn-paper-portrait');
+
+      if (format === 'a4-landscape') {
+        canvas.className = canvas.className.replace('paper-a4-portrait', 'paper-a4-landscape');
+        btnLand.className = "p-2.5 border-2 border-blue-500 bg-blue-50/40 rounded-lg text-xs font-semibold text-slate-800 text-center flex flex-col items-center justify-center space-y-1";
+        btnPort.className = "p-2.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 text-center flex flex-col items-center justify-center space-y-1 hover:border-slate-300";
+      } else {
+        canvas.className = canvas.className.replace('paper-a4-landscape', 'paper-a4-portrait');
+        btnPort.className = "p-2.5 border-2 border-blue-500 bg-blue-50/40 rounded-lg text-xs font-semibold text-slate-800 text-center flex flex-col items-center justify-center space-y-1";
+        btnLand.className = "p-2.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 text-center flex flex-col items-center justify-center space-y-1 hover:border-slate-300";
+      }
+
+      if (shouldSave) saveStateToLocalStorage();
+    }
+
+    function switchSidebarTab(tabName) {
+      ['events', 'design', 'settings'].forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const content = document.getElementById(`tab-content-${t}`);
+        if (t === tabName) {
+          btn.className = "flex-1 py-2 px-2 rounded-lg text-slate-700 font-semibold bg-white shadow-sm border border-slate-200 flex items-center justify-center space-x-1.5 transition";
+          content.classList.remove('hidden');
+        } else {
+          btn.className = "flex-1 py-2 px-2 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-1.5 transition";
+          content.classList.add('hidden');
+        }
+      });
+    }
+
+    // ==========================================
+    // 5. CALENDAR CANVAS RENDERING
+    // ==========================================
+
+    function updateCalendarSettings() {
+      appState.settings.schoolName = document.getElementById('setting-school-name').value;
+      appState.settings.calendarTitle = document.getElementById('setting-calendar-title').value;
+      appState.settings.subtitle = document.getElementById('setting-subtitle').value;
+      appState.settings.academicYear = document.getElementById('setting-academic-year').value;
+      appState.settings.directorName = document.getElementById('setting-director-name').value;
+      appState.settings.showApproval = document.getElementById('setting-show-approval').checked;
+
+      saveStateToLocalStorage();
+      renderCalendarHeader();
+    }
+
+    function renderCalendarHeader() {
+      document.getElementById('canvas-school-name').innerText = appState.settings.schoolName || 'Мектеп Атауы';
+      document.getElementById('canvas-calendar-title').innerText = appState.settings.calendarTitle || 'Іс-шаралар күнтізбесі';
+      document.getElementById('canvas-subtitle').innerText = appState.settings.subtitle || '';
+      document.getElementById('canvas-academic-year-badge').innerText = appState.settings.academicYear || '2026-2027';
+      document.getElementById('canvas-director-name').innerText = appState.settings.directorName || '';
+      document.getElementById('canvas-footer-date').innerText = new Date().getFullYear();
+
+      const stamp = document.getElementById('approval-stamp-block');
+      if (appState.settings.showApproval) {
+        stamp.classList.remove('hidden');
+      } else {
+        stamp.classList.add('hidden');
+      }
+    }
+
+    function renderCalendarCanvas() {
+      renderCalendarHeader();
+
+      const container = document.getElementById('main-calendar-body');
+      const layout = appState.layout;
+
+      if (layout === 'grid12') {
+        renderGrid12View(container);
+      } else if (layout === 'quarters') {
+        renderQuartersView(container);
+      } else if (layout === 'timeline') {
+        renderTimelineView(container);
+      } else if (layout === 'categories') {
+        renderCategoriesView(container);
+      }
+    }
+
+    // VIEW 1: 12 MONTH GRID
+    function renderGrid12View(container) {
+      let html = `<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">`;
+
+      MONTHS_LIST.forEach(month => {
+        // Filter events for this month
+        const monthEvts = appState.events.filter(evt => {
+          const code = evt.startDate.split('-')[1];
+          return code === month.code;
+        }).sort((a,b) => new Date(a.startDate) - new Date(b.startDate));
+
+        html += `
+          <div class="bg-slate-50/80 rounded-xl border border-slate-200 p-2.5 flex flex-col h-full shadow-xs hover:border-slate-300 transition">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-1.5 mb-2">
+              <h3 class="font-extrabold text-xs text-slate-800 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full theme-primary-bg"></span>
+                <span>${month.name}</span>
+              </h3>
+              <span class="text-[10px] font-bold text-slate-400 font-mono">${month.year}</span>
+            </div>
+
+            <div class="flex-1 space-y-1.5 overflow-y-auto max-h-[160px] pr-0.5">
+              ${monthEvts.length === 0 ? `
+                <div class="text-[10px] text-slate-400 italic py-2 text-center">Іс-шаралар жоқ</div>
+              ` : monthEvts.map(evt => {
+                const cat = CATEGORY_MAP[evt.category] || CATEGORY_MAP.academic;
+                const dayNum = evt.startDate.split('-')[2];
+                return `
+                  <div onclick="openEventModal('${evt.id}')" class="bg-white p-1.5 rounded-lg border border-slate-200 shadow-2xs hover:shadow-xs hover:border-blue-400 cursor-pointer transition flex items-start space-x-1.5">
+                    <span class="font-bold text-[10px] ${cat.badgeClass} px-1.5 py-0.2 rounded shrink-0 font-mono">
+                      ${dayNum}
+                    </span>
+                    <span class="text-[11px] font-medium text-slate-800 leading-tight line-clamp-2">
+                      ${evt.title}
+                    </span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    // VIEW 2: 4 QUARTERS VIEW
+    function renderQuartersView(container) {
+      const quarters = [
+        { title: 'I Тоқсан (Қыркүйек - Қараша)', months: ['09', '10', '11'] },
+        { title: 'II Тоқсан (Қараша - Желтоқсан)', months: ['12'] },
+        { title: 'III Тоқсан (Қаңтар - Наурыз)', months: ['01', '02', '03'] },
+        { title: 'IV Тоқсан (Сәуір - Мамыр / Жаз)', months: ['04', '05', '06', '07', '08'] }
+      ];
+
+      let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+
+      quarters.forEach((q, idx) => {
+        const qEvts = appState.events.filter(evt => {
+          const code = evt.startDate.split('-')[1];
+          return q.months.includes(code);
+        }).sort((a,b) => new Date(a.startDate) - new Date(b.startDate));
+
+        html += `
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2 flex flex-col h-full shadow-xs">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+              <h3 class="font-bold text-xs text-slate-900 flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg theme-primary-bg text-white flex items-center justify-center text-[10px] font-bold">${idx + 1}</span>
+                <span>${q.title}</span>
+              </h3>
+              <span class="text-[10px] text-slate-500 font-semibold bg-white px-2 py-0.5 rounded-full border border-slate-200">
+                ${qEvts.length} іс-шара
+              </span>
+            </div>
+
+            <div class="flex-1 space-y-1.5 overflow-y-auto max-h-[220px]">
+              ${qEvts.length === 0 ? `
+                <div class="text-xs text-slate-400 italic py-4 text-center">Іс-шаралар енгізілмеген</div>
+              ` : qEvts.map(evt => {
+                const cat = CATEGORY_MAP[evt.category] || CATEGORY_MAP.academic;
+                const dateStr = formatDateKazakh(evt.startDate, evt.endDate);
+                return `
+                  <div onclick="openEventModal('${evt.id}')" class="bg-white p-2 rounded-lg border border-slate-200 hover:border-blue-400 cursor-pointer transition space-y-1">
+                    <div class="flex items-center justify-between">
+                      <span class="${cat.badgeClass} text-[9px] px-1.5 py-0.2 rounded font-bold">
+                        ${cat.name}
+                      </span>
+                      <span class="text-[10px] text-slate-500 font-mono">
+                        ${dateStr}
+                      </span>
+                    </div>
+                    <div class="text-xs font-semibold text-slate-800 leading-tight">
+                      ${evt.title}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    // VIEW 3: TIMELINE / CHRONOLOGICAL ROADMAP
+    function renderTimelineView(container) {
+      const sorted = [...appState.events].sort((a,b) => new Date(a.startDate) - new Date(b.startDate));
+
+      if (sorted.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400">Іс-шаралар жоқ</div>`;
+        return;
+      }
+
+      let html = `<div class="relative pl-6 space-y-3 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-300">`;
+
+      sorted.forEach(evt => {
+        const cat = CATEGORY_MAP[evt.category] || CATEGORY_MAP.academic;
+        const dateStr = formatDateKazakh(evt.startDate, evt.endDate);
+
+        html += `
+          <div onclick="openEventModal('${evt.id}')" class="relative group cursor-pointer bg-white p-3 rounded-xl border border-slate-200 hover:border-blue-500 shadow-2xs hover:shadow-sm transition">
+            <div class="absolute -left-6 top-3.5 w-3 h-3 rounded-full theme-primary-bg border-2 border-white ring-2 ring-slate-200"></div>
+
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <div class="flex items-center space-x-2">
+                <span class="${cat.badgeClass} text-[10px] px-2 py-0.5 rounded-md font-bold">
+                  ${cat.name}
+                </span>
+                <span class="text-xs font-bold text-slate-700">
+                  <i class="fa-regular fa-calendar text-blue-500 mr-1"></i>${dateStr}
+                </span>
+              </div>
+              ${evt.time ? `<span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-clock mr-1"></i>${evt.time}</span>` : ''}
+            </div>
+
+            <h4 class="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition">
+              ${evt.title}
+            </h4>
+
+            ${evt.description ? `
+              <p class="text-[11px] text-slate-500 mt-1 line-clamp-1">
+                ${evt.description}
+              </p>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    // VIEW 4: CATEGORY MATRIX
+    function renderCategoriesView(container) {
+      let html = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">`;
+
+      Object.keys(CATEGORY_MAP).forEach(catKey => {
+        const cat = CATEGORY_MAP[catKey];
+        const catEvts = appState.events.filter(evt => evt.category === catKey)
+                                        .sort((a,b) => new Date(a.startDate) - new Date(b.startDate));
+
+        html += `
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col h-full">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-2 mb-2">
+              <span class="${cat.badgeClass} text-xs font-bold px-2 py-0.5 rounded-md">
+                ${cat.name}
+              </span>
+              <span class="text-[10px] font-bold text-slate-400">${catEvts.length}</span>
+            </div>
+
+            <div class="space-y-1.5 overflow-y-auto max-h-[200px]">
+              ${catEvts.length === 0 ? `
+                <div class="text-[10px] text-slate-400 italic py-2 text-center">Іс-шаралар жоқ</div>
+              ` : catEvts.map(evt => {
+                const dateStr = formatDateKazakh(evt.startDate, evt.endDate);
+                return `
+                  <div onclick="openEventModal('${evt.id}')" class="bg-white p-2 rounded-lg border border-slate-200 hover:border-blue-400 cursor-pointer transition">
+                    <div class="text-[10px] font-bold text-slate-500 mb-0.5">${dateStr}</div>
+                    <div class="text-xs font-semibold text-slate-800 leading-tight">${evt.title}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    // ==========================================
+    // 6. EVENT MODAL DETAILS
+    // ==========================================
+
+    function openEventModal(id) {
+      const evt = appState.events.find(item => item.id === id);
+      if (!evt) return;
+
+      selectedModalEventId = id;
+      const cat = CATEGORY_MAP[evt.category] || CATEGORY_MAP.academic;
+
+      document.getElementById('modal-category-badge').innerText = cat.name;
+      document.getElementById('modal-category-badge').className = `${cat.badgeClass} px-2.5 py-1 rounded-md text-xs font-bold`;
+      document.getElementById('modal-date-badge').innerText = formatDateKazakh(evt.startDate, evt.endDate);
+      document.getElementById('modal-title').innerText = evt.title;
+      document.getElementById('modal-description').innerText = evt.description || 'Сипаттама берілмеген';
+      document.getElementById('modal-location').innerText = `${evt.location || 'Мектеп'} (${evt.time || 'Күні бойы'})`;
+      document.getElementById('modal-audience').innerText = evt.targetAudience || 'Барлық оқушылар';
+
+      document.getElementById('event-detail-modal').classList.remove('hidden');
+    }
+
+    function closeEventModal() {
+      document.getElementById('event-detail-modal').classList.add('hidden');
+      selectedModalEventId = null;
+    }
+
+    function editModalEvent() {
+      if (selectedModalEventId) {
+        const id = selectedModalEventId;
+        closeEventModal();
+        editEvent(id);
+      }
+    }
+
+    function deleteModalEvent() {
+      if (selectedModalEventId) {
+        const id = selectedModalEventId;
+        closeEventModal();
+        deleteEvent(id);
+      }
+    }
+
+    // ==========================================
+    // 7. EXPORT & PDF / PNG UTILITIES
+    // ==========================================
+
+    function exportToPDF() {
+      showToast('PDF файлы дайындалуда...', 'info');
+
+      const element = document.getElementById('calendar-preview-area');
+      const filename = `Mektep_Calendar_${appState.settings.academicYear || '2026-2027'}.pdf`;
+
+      const opt = {
+        margin:       [5, 5, 5, 5],
+        filename:     filename,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: appState.paperFormat === 'a4-portrait' ? 'portrait' : 'landscape' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        showToast('PDF файлы сәтті жүктелді!', 'success');
+      }).catch(err => {
+        console.error('PDF export error:', err);
+        showToast('PDF экспорттау қателігі орын алды', 'error');
+      });
+    }
+
+    function exportToPNG() {
+      showToast('PNG суреті әзірленуде...', 'info');
+
+      const element = document.getElementById('calendar-preview-area');
+
+      html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Mektep_Calendar_${appState.settings.academicYear || '2026-2027'}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('PNG суреті сәтті жүктелді!', 'success');
+      }).catch(err => {
+        console.error('PNG export error:', err);
+        showToast('Сурет сақтау қателігі', 'error');
+      });
+    }
+
+    // ==========================================
+    // 8. LOGO & JSON BACKUP / RESTORE
+    // ==========================================
+
+    function triggerLogoUpload() {
+      document.getElementById('logo-file-input').click();
+    }
+
+    function handleLogoUpload(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          appState.settings.logoUrl = evt.target.result;
+          saveStateToLocalStorage();
+          updateLogoPreview();
+          showToast('Мектеп логотипі жүктелді', 'success');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function removeLogo() {
+      appState.settings.logoUrl = null;
+      saveStateToLocalStorage();
+      updateLogoPreview();
+      showToast('Логотип өшірілді', 'info');
+    }
+
+    function updateLogoPreview() {
+      const img = document.getElementById('uploaded-logo-img');
+      const icon = document.getElementById('default-logo-icon');
+
+      if (appState.settings.logoUrl) {
+        img.src = appState.settings.logoUrl;
+        img.classList.remove('hidden');
+        icon.classList.add('hidden');
+      } else {
+        img.classList.add('hidden');
+        icon.classList.remove('hidden');
+      }
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `mektep_calendar_backup_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Сақтық көшірме (JSON) сақталды', 'success');
+    }
+
+    function triggerJSONImport() {
+      document.getElementById('json-file-input').click();
+    }
+
+    function importJSON(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          try {
+            const imported = JSON.parse(evt.target.result);
+            if (imported && imported.events) {
+              appState = { ...appState, ...imported };
+              saveStateToLocalStorage();
+              applyStateToUI();
+              renderEventsList();
+              renderCalendarCanvas();
+              showToast('Деректер сәтті жүктелді!', 'success');
+            } else {
+              showToast('Жүктелген файл форматы дұрыс емес', 'error');
+            }
+          } catch (err) {
+            showToast('JSON оқу қателігі', 'error');
+          }
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function resetToSampleData() {
+      if (confirm('Бастапқы үлгі деректерді қалпына келтіруді растайсыз ба? Жобадағы өзгерістер тазаланады.')) {
+        appState.events = [...SAMPLE_EVENTS];
+        saveStateToLocalStorage();
+        renderEventsList();
+        renderCalendarCanvas();
+        showToast('Бастапқы үлгі деректер қалпына келтірілді', 'info');
+      }
+    }
+
+    function confirmClearData() {
+      if (confirm('БАРЛЫҚ іс-шаралар мен баптауларды өшіруді растайсыз ба?')) {
+        appState.events = [];
+        saveStateToLocalStorage();
+        renderEventsList();
+        renderCalendarCanvas();
+        showToast('Барлық деректер тазаланды', 'warning');
+      }
+    }
+
+    // Bundles
+    function loadNationalHolidaysBundle() {
+      const bundle = [
+        { id: 'b-1', title: '25 қазан – Республика күні', startDate: '2026-10-25', endDate: '', category: 'holidays', location: 'Мектеп', targetAudience: 'Барлығы', description: 'ҚР Ұлттық мерекесі' },
+        { id: 'b-2', title: '16 желтоқсан – Тәуелсіздік күні', startDate: '2026-12-16', endDate: '', category: 'holidays', location: 'Акт залы', targetAudience: 'Барлығы', description: 'ҚР Мемлекеттік мерекесі' },
+        { id: 'b-3', title: '8 наурыз – Халықаралық әйелдер күні', startDate: '2027-03-08', endDate: '', category: 'holidays', location: 'Акт залы', targetAudience: 'Ұстаздар мен оқушылар', description: 'Көктемгі салтанатты мереке' },
+        { id: 'b-4', title: '21-23 наурыз – Наурыз мейрамы', startDate: '2027-03-21', endDate: '2027-03-23', category: 'holidays', location: 'Мектеп ауласы', targetAudience: 'Барлық сыныптар', description: 'Ұлыстың ұлы күні' }
+      ];
+
+      bundle.forEach(item => {
+        if (!appState.events.some(e => e.title === item.title)) {
+          appState.events.push(item);
+        }
+      });
+
+      saveStateToLocalStorage();
+      renderEventsList();
+      renderCalendarCanvas();
+      showToast('Ұлттық мерекелер үлгісі қосылды', 'success');
+    }
+
+    function loadExamScheduleBundle() {
+      const bundle = [
+        { id: 'ex-1', title: 'I тоқсан ТЖБ бақылаулары', startDate: '2026-10-20', endDate: '2026-10-27', category: 'exams', location: 'Кабинеттер', targetAudience: '2-11 сыныптар', description: 'Тоқсандық жиынтық бағалау' },
+        { id: 'ex-2', title: 'II тоқсан ТЖБ бақылаулары', startDate: '2026-12-20', endDate: '2026-12-26', category: 'exams', location: 'Кабинеттер', targetAudience: '2-11 сыныптар', description: 'Жартыжылдық жиынтық бағалау' },
+        { id: 'ex-3', title: 'III тоқсан ТЖБ бақылаулары', startDate: '2027-03-12', endDate: '2027-03-18', category: 'exams', location: 'Кабинеттер', targetAudience: '2-11 сыныптар', description: 'Үшінші тоқсандық жиынтық бағалау' },
+        { id: 'ex-4', title: 'IV тоқсан ТЖБ және Мемлекеттік емтихандар', startDate: '2027-05-15', endDate: '2027-05-22', category: 'exams', location: 'Кабинеттер', targetAudience: '9, 11 сыныптар', description: 'Қорытынды аттестаттау' }
+      ];
+
+      bundle.forEach(item => {
+        if (!appState.events.some(e => e.title === item.title)) {
+          appState.events.push(item);
+        }
+      });
+
+      saveStateToLocalStorage();
+      renderEventsList();
+      renderCalendarCanvas();
+      showToast('Сынақтар мен ТЖБ кестесі қосылды', 'success');
+    }
+
+    // ==========================================
+    // 9. HELPER FUNCTIONS
+    // ==========================================
+
+    function formatDateKazakh(startDateStr, endDateStr) {
+      if (!startDateStr) return '';
+
+      const [y1, m1, d1] = startDateStr.split('-');
+      const monthNames = ['қаңтар', 'ақпан', 'наурыз', 'сәуір', 'мамыр', 'маусым', 'шілде', 'тамыз', 'қыркүйек', 'қазан', 'қараша', 'желтоқсан'];
+      const mIndex = parseInt(m1, 10) - 1;
+
+      if (endDateStr) {
+        const [y2, m2, d2] = endDateStr.split('-');
+        if (m1 === m2) {
+          return `${parseInt(d1, 10)}-${parseInt(d2, 10)} ${monthNames[mIndex]} ${y1}`;
+        }
+        return `${parseInt(d1, 10)} ${monthNames[mIndex]} - ${parseInt(d2, 10)} ${monthNames[parseInt(m2, 10)-1]} ${y1}`;
+      }
+
+      return `${parseInt(d1, 10)} ${monthNames[mIndex]} ${y1}`;
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+
+      const colors = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-white',
+        info: 'bg-slate-900 text-white'
+      };
+
+      toast.className = `${colors[type] || colors.info} text-xs font-semibold px-4 py-2.5 rounded-xl shadow-xl flex items-center space-x-2 pointer-events-auto transition-all transform translate-y-2 opacity-0 duration-200`;
+      toast.innerHTML = `
+        <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info'} text-sm"></i>
+        <span>${message}</span>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

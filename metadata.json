@@ -1,0 +1,6 @@
+{
+  "name": "Мектеп күнтізбесі",
+  "description": "Мектептің жылдық іс-шаралар күнтізбесін құрастыру, өңдеу және экспорттау жүйесі",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
